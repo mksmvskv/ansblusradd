@@ -1,0 +1,35 @@
+---
+- name: Configure New Server
+  hosts: test
+  become: yes
+
+  vars:
+    user: username
+    password: yourpasss
+    #password: "{{ lookup('vault', 'vault.yml vault_password') }}"
+    authorized_keys: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+  tasks:
+
+  - name: Create new new user 
+    ansible.builtin.user:
+      name: "{{ user }}"
+      shell: /bin/bash
+      state: present
+      groups: sudo
+      append: yes
+      password: "{{ password }}"
+
+  - name: Add authorized keys
+    ansible.posix.authorized_key:
+      user: "{{ user }}"
+      key: "{{ authorized_keys }}"
+      manage_dir: true
+
+  - name: Grant SUDO rights
+    ansible.builtin.lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: '^{{ user }}'
+      line: '{{ user }} ALL=(ALL) NOPASSWD:ALL'
+      validate: 'visudo -cf %s'
