@@ -4,8 +4,8 @@
   become: yes
 
   vars:
-    user: username
-    password: yourpasss
+    user: "{{ username }}"
+    password: "{{ password }}"
     #password: "{{ lookup('vault', 'vault.yml vault_password') }}"
     authorized_keys: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
